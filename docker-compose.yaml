@@ -1,0 +1,45 @@
+version: '3'
+services:
+  oracle:
+    image: oracle/database:19.3.0-ee
+    environment:
+      - ORACLE_PDB=orcl
+      - ORACLE_PWD=admin
+      - INIT_SGA_SIZE=3000
+      - INIT_PGA_SIZE=1000
+    volumes:
+      - /tmp/oracle/oradata:/opt/oracle/oradata
+    ports:
+      - 1521:1521
+      - 5500:5500
+    networks:
+      - app-network
+
+  # school-core-api:
+  #   build:
+  #     context: ../../
+  #     dockerfile: Dockerfile
+  #     target: school-core-api
+  #   env_file:
+  #     - .env
+
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - oracle
+  #     - redis
+  #   networks:
+  #     - app-network
+
+  # redis:
+  #   image: redis:latest
+  #   ports:
+  #     - 6379:6379
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge

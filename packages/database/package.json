@@ -1,0 +1,32 @@
+{
+  "name": "@ncbs/database",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "db:migrate": "pnpm build && typeorm migration:run -d dist/data-source.js",
+    "db:migrate:generate": "typeorm migration:generate -d dist/data-source.js",
+    "db:migrate:revert": "pnpm build && typeorm migration:revert -d dist/data-source.js",
+    "db:migrate:create": "typeorm migration:create src/migrations/",
+    "db:migrate:show": "pnpm build && typeorm migration:show -d dist/data-source.js",
+    "db:seed": "tsx src/seed.ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "typeorm": "^0.3.20",
+    "oracledb": "^6.0.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
+}
