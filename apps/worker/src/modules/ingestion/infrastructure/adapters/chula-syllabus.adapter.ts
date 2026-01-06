@@ -1,6 +1,9 @@
-import { IUniversityAdapter, SyllabusDataDto } from "@ncbs/dtos";
+import { Injectable } from "@nestjs/common";
+import { SyllabusDataDto } from "@ncbs/dtos";
+import { IUniversityAdapter } from "../../domain/ports/university-adapter.port";
 
-export class ChulaAdapter implements IUniversityAdapter {
+@Injectable()
+export class ChulaSyllabusAdapter implements IUniversityAdapter {
   normalize(rawData: unknown): {
     courseCode: string;
     courseName: string;

@@ -11,9 +11,9 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-if ! command -v pnpm &> /dev/null; then
-    echo "❌ pnpm is not installed. Installing..."
-    npm install -g pnpm
+if ! command -v bun &> /dev/null; then
+    echo "❌ bun is not installed. Installing..."
+    npm install -g bun
 fi
 
 if ! command -v psql &> /dev/null; then
@@ -26,16 +26,16 @@ fi
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-pnpm install
+bun install
 
 # Build packages
 echo "🔨 Building packages..."
-pnpm build
+bun build
 
 # Setup database
 echo "🗄️  Setting up database..."
 cd packages/database
-pnpm dev
+bun dev
 
 # Check if DATABASE_URL is set
 if [ -z "$DATABASE_URL" ]; then
@@ -47,7 +47,7 @@ if [ -z "$DATABASE_URL" ]; then
     echo "See SETUP.md for details."
 else
     echo "📊 Pushing database schema..."
-    pnpm db:push || echo "⚠️  Database push failed. Check your DATABASE_URL."
+    bun db:push || echo "⚠️  Database push failed. Check your DATABASE_URL."
 fi
 
 cd ../..
@@ -57,7 +57,7 @@ echo "✅ Setup complete!"
 echo ""
 echo "Next steps:"
 echo "1. Create .env.local files (see SETUP.md)"
-echo "2. Run 'pnpm dev' to start all apps"
+echo "2. Run 'bun dev' to start all apps"
 echo "3. Visit http://localhost:3000 for web app"
 echo "4. Visit http://localhost:3001/health for API health check"
 

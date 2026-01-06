@@ -7,7 +7,9 @@ import { IngestionRepository } from "./infrastructure/ingestion.repository";
 import { TranscriptRepository } from "./infrastructure/transcript.repository";
 import { SyllabusRepository } from "./infrastructure/syllabus.repository";
 import { FileSyllabusDataSourceAdapter } from "./infrastructure/adapters/file-syllabus-data-source.adapter";
-import { AdapterFactory } from "./domain/adapter.factory";
+import { ChulaSyllabusAdapter } from "./infrastructure/adapters/chula-syllabus.adapter";
+import { KmitlSyllabusAdapter } from "./infrastructure/adapters/kmitl-syllabus.adapter";
+import { UniversityAdapterSelector } from "./infrastructure/university-adapter-selector";
 import { IngestionProviders } from "./domain/providers/ingestion.providers";
 
 @Module({
@@ -17,9 +19,12 @@ import { IngestionProviders } from "./domain/providers/ingestion.providers";
     }),
   ],
   providers: [
+    // Application Services
     ProcessIngestionProcessor,
     ProcessIngestionService,
     FetchSyllabusService,
+
+    // Repository Implementations (Infrastructure → Domain Ports)
     {
       provide: IngestionProviders.INGESTION_REPOSITORY,
       useClass: IngestionRepository,
@@ -32,15 +37,34 @@ import { IngestionProviders } from "./domain/providers/ingestion.providers";
       provide: IngestionProviders.SYLLABUS_REPOSITORY,
       useClass: SyllabusRepository,
     },
+
+    // Data Source Implementations (Infrastructure → Domain Ports)
     {
       provide: IngestionProviders.SYLLABUS_DATA_SOURCE,
       useClass: FileSyllabusDataSourceAdapter,
     },
+
+    // University Adapter Implementations (Infrastructure → Domain Ports)
+    {
+      provide: IngestionProviders.CHULA_ADAPTER,
+      useClass: ChulaSyllabusAdapter,
+    },
+    {
+      provide: IngestionProviders.KMITL_ADAPTER,
+      useClass: KmitlSyllabusAdapter,
+    },
+
+    // Adapter Selector (Infrastructure → Domain Port)
+    {
+      provide: IngestionProviders.ADAPTER_SELECTOR,
+      useClass: UniversityAdapterSelector,
+    },
+
+    // Concrete classes for direct injection if needed
     IngestionRepository,
     TranscriptRepository,
     SyllabusRepository,
     FileSyllabusDataSourceAdapter,
-    AdapterFactory,
   ],
 })
 export class IngestionModule {}

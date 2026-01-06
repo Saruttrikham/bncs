@@ -4,7 +4,7 @@ import { FetchSyllabusDto } from "@ncbs/dtos";
 import { ISyllabusRepository } from "../domain/ports/syllabus.repository.port";
 import { IIngestionRepository } from "../domain/ports/ingestion.repository.port";
 import { ISyllabusDataSource } from "../domain/ports/syllabus-data-source.port";
-import { AdapterFactory } from "../domain/adapter.factory";
+import { IUniversityAdapterSelector } from "../domain/ports/university-adapter-selector.port";
 import { IngestionProviders } from "../domain/providers/ingestion.providers";
 
 @Injectable()
@@ -16,7 +16,8 @@ export class FetchSyllabusService {
     private readonly ingestionRepository: IIngestionRepository,
     @Inject(IngestionProviders.SYLLABUS_DATA_SOURCE)
     private readonly syllabusDataSource: ISyllabusDataSource,
-    private readonly adapterFactory: AdapterFactory
+    @Inject(IngestionProviders.ADAPTER_SELECTOR)
+    private readonly adapterSelector: IUniversityAdapterSelector
   ) {}
 
   async fetchChulaSyllabus(dto: FetchSyllabusDto): Promise<void> {
@@ -31,7 +32,7 @@ export class FetchSyllabusService {
         throw new Error(`University not found: ${dto.universityId}`);
       }
 
-      const adapter = this.adapterFactory.getAdapter(university.code);
+      const adapter = this.adapterSelector.getAdapter(university.code);
 
       const rawData = await this.syllabusDataSource.fetchRawData();
 

@@ -2,6 +2,10 @@
   "name": "ncbs",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
@@ -17,13 +21,13 @@
     "check:fix": "biome check --write .",
     "type-check": "turbo run type-check",
     "clean": "turbo run clean && rm -rf node_modules",
-    "db:push": "cd packages/database && pnpm db:push",
-    "db:migrate": "cd packages/database && pnpm db:migrate",
-    "db:migrate:generate": "cd packages/database && pnpm db:migrate:generate",
-    "db:migrate:create": "cd packages/database && pnpm db:migrate:create",
-    "db:migrate:revert": "cd packages/database && pnpm db:migrate:revert",
-    "db:migrate:show": "cd packages/database && pnpm db:migrate:show",
-    "db:studio": "cd packages/database && pnpm db:studio",
+    "db:push": "cd packages/database && bun db:push",
+    "db:migrate": "cd packages/database && bun db:migrate",
+    "db:migrate:generate": "cd packages/database && bun db:migrate:generate",
+    "db:migrate:create": "cd packages/database && bun db:migrate:create",
+    "db:migrate:revert": "cd packages/database && bun db:migrate:revert",
+    "db:migrate:show": "cd packages/database && bun db:migrate:show",
+    "db:studio": "cd packages/database && bun db:studio",
     "setup": "./scripts/setup.sh"
   },
   "devDependencies": {
@@ -31,9 +35,9 @@
     "turbo": "^2.0.0",
     "typescript": "^5.3.3"
   },
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "bun@1.1.0",
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "bun": ">=1.0.0"
   }
 }

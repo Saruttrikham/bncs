@@ -19,7 +19,7 @@ This project follows a **Modular Monolith** architecture inside a **Monorepo**:
 
 ## Tech Stack
 
-- **Monorepo Manager:** Turborepo + pnpm
+- **Monorepo Manager:** Turborepo + Bun
 - **Backend Framework:** NestJS (Modular Monolith)
 - **Frontend Framework:** Next.js 14+ (App Router, CSR focus)
 - **Language:** TypeScript (Strict Mode)
@@ -34,24 +34,24 @@ This project follows a **Modular Monolith** architecture inside a **Monorepo**:
 
 ```bash
 # 1. Install dependencies
-pnpm install
+bun install
 
 # 2. Build packages
-pnpm build
+bun build
 
 # 3. Set up database (see SETUP.md for details)
 cd packages/database
-pnpm dev
-pnpm db:push
+bun dev
+bun db:push
 cd ../..
 
 # 4. Create .env.local files (see SETUP.md)
 # - apps/api/.env.local
-# - apps/worker/.env.local  
+# - apps/worker/.env.local
 # - apps/web/.env.local
 
 # 5. Run all apps
-pnpm dev
+bun dev
 ```
 
 **📖 For detailed setup instructions, see [SETUP.md](./SETUP.md)**
@@ -59,32 +59,35 @@ pnpm dev
 ### Prerequisites
 
 - Node.js >= 18.0.0
-- pnpm >= 8.0.0
+- Bun >= 1.0.0
 - PostgreSQL (running on port 5432)
 - Redis (running on port 6379)
 
 ### Development
 
 Run all apps in development mode:
+
 ```bash
-pnpm dev
+bun dev
 ```
 
 This starts:
+
 - **API Server** on `http://localhost:3001`
 - **Worker** (background processor)
 - **Web App** on `http://localhost:3000`
 
 Or run individual apps:
+
 ```bash
 # API Server
-cd apps/api && pnpm dev
+cd apps/api && bun dev
 
 # Worker
-cd apps/worker && pnpm dev
+cd apps/worker && bun dev
 
 # Web App
-cd apps/web && pnpm dev
+cd apps/web && bun dev
 ```
 
 ## Project Structure
@@ -120,11 +123,12 @@ src/modules/ingestion/
 ### Frontend (Feature-Sliced Design)
 
 Domain-specific logic lives in `features/`:
+
 - `features/transcript/components/TranscriptTable.tsx`
 
 ## Coding Guidelines
 
-1. **Always update DTOs first**: If adding a field, modify `packages/dtos` first, then run `pnpm build`.
+1. **Always update DTOs first**: If adding a field, modify `packages/dtos` first, then run `bun build`.
 2. **No Logic in Controllers**: Controllers should only parse requests, call services, and return results.
 3. **Strict Typing**: Do not use `any`. Use interfaces from `packages/dtos`.
 4. **Environment Variables**: Reference via `ConfigService`, never `process.env` directly.
