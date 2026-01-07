@@ -12,11 +12,11 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "db:migrate": "bun run build && typeorm migration:run -d dist/data-source.js",
-    "db:migrate:generate": "typeorm migration:generate -d dist/data-source.js",
-    "db:migrate:revert": "bun run build && typeorm migration:revert -d dist/data-source.js",
-    "db:migrate:create": "typeorm migration:create src/migrations/",
-    "db:migrate:show": "bun run build && typeorm migration:show -d dist/data-source.js",
+    "db:migrate": "tsc && typeorm migration:run -d dist/data-source.js",
+    "db:migrate:generate": "tsc && typeorm migration:generate src/migrations/$npm_config_name -d dist/data-source.js",
+    "db:migrate:revert": "tsc && typeorm migration:revert -d dist/data-source.js",
+    "db:migrate:create": "typeorm migration:create src/migrations/$npm_config_name",
+    "db:migrate:show": "tsc && typeorm migration:show -d dist/data-source.js",
     "db:seed": "tsx src/seed.ts",
     "clean": "rm -rf dist"
   },

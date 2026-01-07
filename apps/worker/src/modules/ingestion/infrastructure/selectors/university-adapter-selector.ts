@@ -1,7 +1,7 @@
 import { Injectable, Inject } from "@nestjs/common";
-import { IUniversityAdapterSelector } from "../domain/ports/university-adapter-selector.port";
-import { IUniversityAdapter } from "../domain/ports/university-adapter.port";
-import { IngestionProviders } from "../domain/providers/ingestion.providers";
+import { IUniversityAdapterSelector } from "../../domain/ports/university-adapter-selector.port";
+import { IUniversityAdapter } from "../../domain/ports/university-adapter.port";
+import { IngestionProviders } from "../../domain/providers/ingestion.providers";
 
 @Injectable()
 export class UniversityAdapterSelector implements IUniversityAdapterSelector {

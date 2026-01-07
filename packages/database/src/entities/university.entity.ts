@@ -6,7 +6,6 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from "typeorm";
-import { StudentProfile } from "./student-profile.entity";
 import { IngestionLog } from "./ingestion-log.entity";
 
 @Entity("universities")
@@ -33,10 +32,4 @@ export class University {
 
   @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
   updatedAt!: Date;
-
-  @OneToMany(() => StudentProfile, (profile) => profile.university)
-  studentProfiles!: StudentProfile[];
-
-  @OneToMany(() => IngestionLog, (log) => log.university)
-  ingestionLogs!: IngestionLog[];
 }

@@ -5,15 +5,16 @@ import {
   University,
   IngestionStatus,
 } from "@ncbs/database";
-import { IIngestionRepository } from "../domain/ports/ingestion.repository.port";
+import { IIngestionRepository } from "../../domain/ports/ingestion.repository.port";
+import { IngestionLogDto } from "@ncbs/dtos";
+import { IngestionLogEntity } from "../../domain/entities/ingestion-log.entity";
 
 @Injectable()
 export class IngestionRepository implements IIngestionRepository {
-  async findById(id: string) {
+  async findById(id: string): Promise<IngestionLogDto | null> {
     const ingestionLogRepo = await getRepository(IngestionLog);
     const result = await ingestionLogRepo.findOne({
       where: { id },
-      relations: ["university"],
     });
 
     if (!result) {
@@ -37,13 +38,9 @@ export class IngestionRepository implements IIngestionRepository {
       studentId: result.studentId,
       rawData,
       status: result.status,
-      university: result.university
-        ? {
-            id: result.university.id,
-            code: result.university.code,
-            name: result.university.name,
-          }
-        : null,
+      errorMessage: result.errorMessage ?? null,
+      processedAt: result.processedAt ?? null,
+      createdAt: result.createdAt,
     };
   }
 
@@ -76,5 +73,25 @@ export class IngestionRepository implements IIngestionRepository {
       code: result.code,
       name: result.name,
     };
+  }
+
+  async create(dto: IngestionLogEntity): Promise<IngestionLogDto> {
+    const ingestionLogRepo = await getRepository(IngestionLog);
+
+    // Convert rawData to string for CLOB storage
+    const dataToSave = {
+      id: dto.id,
+      universityId: dto.universityId,
+      studentId: dto.studentId,
+      rawData: JSON.stringify(dto.rawData),
+      status: dto.status as IngestionStatus,
+      errorMessage: dto.errorMessage ?? null,
+      processedAt: dto.processedAt ?? null,
+      createdAt: dto.createdAt,
+    };
+
+    await ingestionLogRepo.save(dataToSave);
+
+    return dto.getValue();
   }
 }

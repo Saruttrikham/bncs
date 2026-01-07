@@ -1,20 +1,12 @@
+import { CreateIngestionLogDto, IngestionLogDto } from "@ncbs/dtos";
+import { IngestionLogEntity } from "../entities/ingestion-log.entity";
+
 /**
  * Port: Interface for Ingestion Repository
  * Application layer depends on this interface, not concrete implementation
  */
 export interface IIngestionRepository {
-  findById(id: string): Promise<{
-    id: string;
-    universityId: string;
-    studentId: string;
-    rawData: unknown;
-    status: string;
-    university: {
-      id: string;
-      code: string;
-      name: string;
-    } | null;
-  } | null>;
+  findById(id: string): Promise<IngestionLogDto | null>;
 
   updateStatus(
     id: string,
@@ -28,4 +20,6 @@ export interface IIngestionRepository {
     code: string;
     name: string;
   } | null>;
+
+  create(dto: IngestionLogEntity): Promise<IngestionLogDto>;
 }

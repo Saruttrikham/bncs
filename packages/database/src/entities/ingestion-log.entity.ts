@@ -3,14 +3,8 @@ import {
   PrimaryColumn,
   Column,
   CreateDateColumn,
-  ManyToOne,
-  OneToMany,
   Index,
-  JoinColumn,
 } from "typeorm";
-import { University } from "./university.entity";
-import { StudentProfile } from "./student-profile.entity";
-import { StandardizedTranscript } from "./standardized-transcript.entity";
 
 export enum IngestionStatus {
   PENDING = "PENDING",
@@ -55,18 +49,4 @@ export class IngestionLog {
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
-
-  @ManyToOne(() => University, (university) => university.ingestionLogs)
-  @JoinColumn({ name: "university_id", referencedColumnName: "id" })
-  university!: University;
-
-  @ManyToOne(() => StudentProfile, (profile) => profile.ingestionLogs)
-  @JoinColumn({ name: "student_id", referencedColumnName: "id" })
-  studentProfile!: StudentProfile;
-
-  @OneToMany(
-    () => StandardizedTranscript,
-    (transcript) => transcript.ingestionLog
-  )
-  transcripts!: StandardizedTranscript[];
 }

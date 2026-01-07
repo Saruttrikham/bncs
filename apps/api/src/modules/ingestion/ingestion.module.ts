@@ -14,4 +14,3 @@ import { IngestionRepository } from "./infrastructure/ingestion.repository";
   providers: [IngestionService, IngestionRepository],
 })
 export class IngestionModule {}
-

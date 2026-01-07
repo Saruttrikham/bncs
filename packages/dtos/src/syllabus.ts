@@ -1,9 +1,7 @@
 import { z } from "zod";
 
 export const FetchSyllabusDto = z.object({
-  universityId: z.string().min(1),
-  academicYear: z.string().optional(), // e.g., "2025"
-  semester: z.string().optional(), // e.g., "1"
+  universityCode: z.string(),
 });
 
 export type FetchSyllabusDto = z.infer<typeof FetchSyllabusDto>;

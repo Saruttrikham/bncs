@@ -1,11 +1,9 @@
 import { config } from "dotenv";
 import { resolve } from "node:path";
 import { DataSource } from "typeorm";
-import { User } from "./entities/user.entity";
-import { StudentProfile } from "./entities/student-profile.entity";
 import { University } from "./entities/university.entity";
 import { IngestionLog } from "./entities/ingestion-log.entity";
-import { StandardizedTranscript } from "./entities/standardized-transcript.entity";
+import { Outbox } from "./entities/outbox.entity";
 
 const projectRoot = resolve(__dirname, "../../..");
 config({ path: resolve(projectRoot, ".env.local") });
@@ -37,13 +35,7 @@ export const AppDataSource = new DataSource({
   synchronize: process.env.NODE_ENV === "development",
   logging:
     process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
-  entities: [
-    User,
-    StudentProfile,
-    University,
-    IngestionLog,
-    StandardizedTranscript,
-  ],
+  entities: [University, IngestionLog, Outbox],
   migrations: ["dist/migrations/*.js"],
   migrationsTableName: "migrations",
   subscribers: [],

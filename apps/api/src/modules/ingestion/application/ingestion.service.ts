@@ -18,10 +18,8 @@ export class IngestionService {
   async createIngestionLog(
     dto: CreateIngestionLogDto
   ): Promise<IngestionLogDto> {
-    // Save raw data to IngestionLog (append-only)
     const ingestionLog = await this.ingestionRepository.create(dto);
 
-    // Push job to queue for processing (Worker will handle it)
     await this.ingestionQueue.add("process-ingestion", {
       ingestionLogId: ingestionLog.id,
     });
@@ -29,16 +27,24 @@ export class IngestionService {
     return ingestionLog;
   }
 
-  async fetchSyllabus(dto: FetchSyllabusDto): Promise<{ jobId: string }> {
-    // Push syllabus fetch job to ingestion queue for processing (Worker will handle it)
-    const job = await this.ingestionQueue.add("fetch-syllabus", dto);
+  async syncUniversity(params: {
+    universityCode: string;
+    year?: string;
+    semester?: string;
+  }): Promise<{ jobId: string; message: string }> {
+    const job = await this.ingestionQueue.add("coordinate-sync", {
+      universityCode: params.universityCode,
+      year: params.year,
+      semester: params.semester,
+    });
 
     if (!job.id) {
-      throw new Error("Failed to create job: job ID is missing");
+      throw new Error("Failed to create coordination job");
     }
 
     return {
       jobId: job.id,
+      message: `Sync coordination queued for ${params.universityCode}`,
     };
   }
 }

@@ -1,6 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { SyllabusDataDto } from "@ncbs/dtos";
-import { IUniversityAdapter } from "../../domain/ports/university-adapter.port";
+import {
+  FetchPageParams,
+  IUniversityAdapter,
+  PaginatedResponse,
+} from "../../domain/ports/university-adapter.port";
 
 @Injectable()
 export class KmitlSyllabusAdapter implements IUniversityAdapter {
@@ -123,5 +127,11 @@ export class KmitlSyllabusAdapter implements IUniversityAdapter {
     }
 
     return normalizedSyllabi;
+  }
+
+  fetchPage(
+    _params: FetchPageParams
+  ): Promise<PaginatedResponse<SyllabusDataDto>> {
+    throw new Error("Method not implemented.");
   }
 }

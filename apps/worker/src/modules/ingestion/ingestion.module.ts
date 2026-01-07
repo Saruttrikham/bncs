@@ -1,50 +1,96 @@
 import { Module } from "@nestjs/common";
 import { BullModule } from "@nestjs/bullmq";
-import { ProcessIngestionProcessor } from "./application/process-ingestion.processor";
-import { ProcessIngestionService } from "./application/process-ingestion.service";
-import { FetchSyllabusService } from "./application/fetch-syllabus.service";
-import { IngestionRepository } from "./infrastructure/ingestion.repository";
-import { TranscriptRepository } from "./infrastructure/transcript.repository";
-import { SyllabusRepository } from "./infrastructure/syllabus.repository";
-import { FileSyllabusDataSourceAdapter } from "./infrastructure/adapters/file-syllabus-data-source.adapter";
-import { ChulaSyllabusAdapter } from "./infrastructure/adapters/chula-syllabus.adapter";
-import { KmitlSyllabusAdapter } from "./infrastructure/adapters/kmitl-syllabus.adapter";
-import { UniversityAdapterSelector } from "./infrastructure/university-adapter-selector";
+import { ScheduleModule } from "@nestjs/schedule";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Outbox } from "@ncbs/database";
+import { QueueNames } from "./domain/constants/queue-names";
+import Redis from "ioredis";
+
+// Application Layer - Use Cases & Processors & Services
+import {
+  ProcessIngestionProcessor,
+  OutboxProcessor,
+} from "./application/processors";
+import {
+  FetchSyllabusUseCase,
+  CoordinateSyllabusSyncUseCase,
+} from "./application/use-cases";
+import { DistributedLockService } from "./application/services";
+
+// Domain Layer - Providers
 import { IngestionProviders } from "./domain/providers/ingestion.providers";
+
+// Infrastructure Layer - Repositories & Adapters
+import {
+  IngestionRepository,
+  SyllabusRepository,
+  OutboxRepository,
+} from "./infrastructure/repositories";
+import {
+  ChulaSyllabusAdapter,
+  KmitlSyllabusAdapter,
+} from "./infrastructure/adapters";
+import { UniversityAdapterSelector } from "./infrastructure/selectors";
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(), // Enable cron jobs for OutboxProcessor
+    TypeOrmModule.forFeature([Outbox]), // Register Outbox entity
     BullModule.registerQueue({
-      name: "ingestion",
+      name: QueueNames.INGESTION,
     }),
   ],
   providers: [
-    // Application Services
-    ProcessIngestionProcessor,
-    ProcessIngestionService,
-    FetchSyllabusService,
+    // ========================================
+    // APPLICATION LAYER
+    // ========================================
 
-    // Repository Implementations (Infrastructure → Domain Ports)
+    // Processors (Queue Handlers & Outbox)
+    ProcessIngestionProcessor,
+    OutboxProcessor,
+
+    // Use Cases (Business Workflows)
+    FetchSyllabusUseCase,
+    CoordinateSyllabusSyncUseCase,
+
+    // Services (Shared Application Services)
+    DistributedLockService,
+
+    // Redis Client for Distributed Locking
+    {
+      provide: "REDIS_CLIENT",
+      useFactory: () => {
+        return new Redis({
+          host: process.env.REDIS_HOST || "localhost",
+          port: parseInt(process.env.REDIS_PORT || "6379", 10),
+          maxRetriesPerRequest: 3,
+          retryStrategy: (times: number) => {
+            const delay = Math.min(times * 50, 2000);
+            return delay;
+          },
+        });
+      },
+    },
+
+    // ========================================
+    // INFRASTRUCTURE LAYER → DOMAIN PORTS
+    // ========================================
+
+    // Repository Implementations
     {
       provide: IngestionProviders.INGESTION_REPOSITORY,
       useClass: IngestionRepository,
     },
     {
-      provide: IngestionProviders.TRANSCRIPT_REPOSITORY,
-      useClass: TranscriptRepository,
-    },
-    {
       provide: IngestionProviders.SYLLABUS_REPOSITORY,
       useClass: SyllabusRepository,
     },
-
-    // Data Source Implementations (Infrastructure → Domain Ports)
     {
-      provide: IngestionProviders.SYLLABUS_DATA_SOURCE,
-      useClass: FileSyllabusDataSourceAdapter,
+      provide: IngestionProviders.OUTBOX_REPOSITORY,
+      useClass: OutboxRepository,
     },
 
-    // University Adapter Implementations (Infrastructure → Domain Ports)
+    // University-Specific Adapters
     {
       provide: IngestionProviders.CHULA_ADAPTER,
       useClass: ChulaSyllabusAdapter,
@@ -54,17 +100,18 @@ import { IngestionProviders } from "./domain/providers/ingestion.providers";
       useClass: KmitlSyllabusAdapter,
     },
 
-    // Adapter Selector (Infrastructure → Domain Port)
+    // Adapter Selector
     {
       provide: IngestionProviders.ADAPTER_SELECTOR,
       useClass: UniversityAdapterSelector,
     },
 
-    // Concrete classes for direct injection if needed
     IngestionRepository,
-    TranscriptRepository,
     SyllabusRepository,
-    FileSyllabusDataSourceAdapter,
+    OutboxRepository,
+  ],
+  exports: [
+    CoordinateSyllabusSyncUseCase, // Export for use in API layer
   ],
 })
 export class IngestionModule {}
