@@ -1,2 +1,1 @@
 export * from "./ingestion.repository";
-export * from "./outbox.repository";

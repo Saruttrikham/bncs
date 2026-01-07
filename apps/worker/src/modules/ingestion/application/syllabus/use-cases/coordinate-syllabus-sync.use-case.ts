@@ -1,10 +1,10 @@
 import { Injectable, Inject } from "@nestjs/common";
 import { logger } from "@ncbs/logger";
 import { JobType } from "@ncbs/database";
-import { IOutboxRepository } from "../../domain/ports/outbox.repository.port";
-import { IUniversityAdapterSelector } from "../../domain/ports/university-adapter-selector.port";
-import { IngestionProviders } from "../../domain/providers/ingestion.providers";
-import { DistributedLockService } from "../services/distributed-lock.service";
+import { IOutboxRepository } from "../../../domain/ports/outbox.repository.port";
+import { IUniversityAdapterSelector } from "../../../domain/ports/university-adapter-selector.port";
+import { IngestionProviders } from "../../../domain/providers/ingestion.providers";
+import { DistributedLockService } from "../../services/distributed-lock.service";
 import { createHash } from "node:crypto";
 import { randomUUID } from "node:crypto";
 

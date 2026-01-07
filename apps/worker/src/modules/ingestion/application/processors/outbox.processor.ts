@@ -4,7 +4,7 @@ import { logger } from "@ncbs/logger";
 import { JobType } from "@ncbs/database";
 import { IOutboxRepository } from "../../domain/ports/outbox.repository.port";
 import { IngestionProviders } from "../../domain/providers/ingestion.providers";
-import { FetchSyllabusUseCase } from "../use-cases/fetch-syllabus.use-case";
+import { FetchSyllabusUseCase } from "../syllabus/use-cases/fetch-syllabus.use-case";
 
 @Injectable()
 export class OutboxProcessor {

@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Job } from "bullmq";
 import { logger } from "@ncbs/logger";
-import { CoordinateSyllabusSyncUseCase } from "../use-cases/coordinate-syllabus-sync.use-case";
+import { CoordinateSyllabusSyncUseCase } from "../syllabus/use-cases/coordinate-syllabus-sync.use-case";
 import { QueueNames, JobNames } from "../../domain/constants/queue-names";
 
 type CoordinateSyncPayload = {

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { SyllabusDataDto } from "@ncbs/dtos";
 import { logger } from "@ncbs/logger";
-import { ISyllabusRepository } from "../../domain/ports/syllabus.repository.port";
+import { ISyllabusRepository } from "../../../domain/ports/syllabus.repository.port";
 
 @Injectable()
 export class SyllabusRepository implements ISyllabusRepository {

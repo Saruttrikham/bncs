@@ -4,12 +4,10 @@ import {
   FetchPageParams,
   IUniversityAdapter,
   PaginatedResponse,
-} from "../../domain/ports/university-adapter.port";
-import * as fs from "node:fs";
-import * as path from "node:path";
+} from "../../../domain/ports/university-adapter.port";
 
 @Injectable()
-export class ChulaSyllabusAdapter implements IUniversityAdapter {
+export class KmitlSyllabusAdapter implements IUniversityAdapter {
   normalize(rawData: unknown): {
     courseCode: string;
     courseName: string;
@@ -134,16 +132,6 @@ export class ChulaSyllabusAdapter implements IUniversityAdapter {
   fetchPage(
     _params: FetchPageParams
   ): Promise<PaginatedResponse<SyllabusDataDto>> {
-    const mockDataPath = path.join(
-      process.cwd(),
-      "syllabus_listbyyearsem.json"
-    );
-
-    if (!fs.existsSync(mockDataPath)) {
-      throw new Error(`Mock syllabus file not found at: ${mockDataPath}`);
-    }
-
-    const rawData = JSON.parse(fs.readFileSync(mockDataPath, "utf-8"));
-    return rawData;
+    throw new Error("Method not implemented.");
   }
 }

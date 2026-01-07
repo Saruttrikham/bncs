@@ -1,4 +1,4 @@
 // Infrastructure Layer Exports
 export * from "./repositories";
-export * from "./adapters";
+export * from "./syllabus/adapters";
 export * from "./selectors";

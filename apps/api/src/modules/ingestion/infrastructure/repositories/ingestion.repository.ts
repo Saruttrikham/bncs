@@ -2,9 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { getRepository, IngestionLog, IngestionStatus } from "@ncbs/database";
 import { CreateIngestionLogDto, IngestionLogDto } from "@ncbs/dtos";
 import { randomUUID } from "node:crypto";
+import { IIngestionRepository } from "../../domain/ports/ingestion.repository.port";
 
 @Injectable()
-export class IngestionRepository {
+export class IngestionRepository implements IIngestionRepository {
   async create(dto: CreateIngestionLogDto): Promise<IngestionLogDto> {
     const ingestionLogRepo = await getRepository(IngestionLog);
     const ingestionLog = ingestionLogRepo.create({

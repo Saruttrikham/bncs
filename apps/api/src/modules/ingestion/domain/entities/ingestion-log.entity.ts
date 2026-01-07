@@ -1,5 +1,5 @@
 // Pure domain logic - no frameworks, no DB
-export class IngestionEntity {
+export class IngestionLogEntity {
   constructor(
     public readonly universityId: string,
     public readonly studentId: string,
@@ -11,4 +11,3 @@ export class IngestionEntity {
     return !!this.universityId && !!this.studentId && !!this.rawData;
   }
 }
-

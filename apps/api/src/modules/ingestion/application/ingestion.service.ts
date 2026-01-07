@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Queue } from "bullmq";
 import {
@@ -6,12 +6,14 @@ import {
   IngestionLogDto,
   FetchSyllabusDto,
 } from "@ncbs/dtos";
-import { IngestionRepository } from "../infrastructure/ingestion.repository";
+import { IIngestionRepository } from "../domain/ports/ingestion.repository.port";
+import { IngestionProviders } from "../domain/providers/ingestion.providers";
 
 @Injectable()
 export class IngestionService {
   constructor(
-    private readonly ingestionRepository: IngestionRepository,
+    @Inject(IngestionProviders.INGESTION_REPOSITORY)
+    private readonly ingestionRepository: IIngestionRepository,
     @InjectQueue("ingestion") private readonly ingestionQueue: Queue
   ) {}
 

@@ -5,32 +5,31 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Outbox } from "@ncbs/database";
 import { QueueNames } from "./domain/constants/queue-names";
 import Redis from "ioredis";
-
-// Application Layer - Use Cases & Processors & Services
 import {
   ProcessIngestionProcessor,
   OutboxProcessor,
 } from "./application/processors";
+import { DistributedLockService } from "./application/services";
 import {
   FetchSyllabusUseCase,
   CoordinateSyllabusSyncUseCase,
-} from "./application/use-cases";
-import { DistributedLockService } from "./application/services";
-
-// Domain Layer - Providers
+} from "./application/syllabus/use-cases";
+import {
+  ExtractSyllabusActivity,
+  TransformSyllabusActivity,
+  LoadSyllabusActivity,
+} from "./application/syllabus/activities";
 import { IngestionProviders } from "./domain/providers/ingestion.providers";
-
-// Infrastructure Layer - Repositories & Adapters
 import {
   IngestionRepository,
-  SyllabusRepository,
   OutboxRepository,
 } from "./infrastructure/repositories";
+import { UniversityAdapterSelector } from "./infrastructure/selectors";
+import { SyllabusRepository } from "./infrastructure/syllabus/repositories";
 import {
   ChulaSyllabusAdapter,
   KmitlSyllabusAdapter,
-} from "./infrastructure/adapters";
-import { UniversityAdapterSelector } from "./infrastructure/selectors";
+} from "./infrastructure/syllabus/adapters";
 
 @Module({
   imports: [
@@ -52,6 +51,11 @@ import { UniversityAdapterSelector } from "./infrastructure/selectors";
     // Use Cases (Business Workflows)
     FetchSyllabusUseCase,
     CoordinateSyllabusSyncUseCase,
+
+    // Activities (Temporal-style activity pattern)
+    ExtractSyllabusActivity,
+    TransformSyllabusActivity,
+    LoadSyllabusActivity,
 
     // Services (Shared Application Services)
     DistributedLockService,

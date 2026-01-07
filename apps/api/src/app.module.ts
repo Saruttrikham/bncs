@@ -4,7 +4,6 @@ import { BullModule } from "@nestjs/bullmq";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { IngestionModule } from "./modules/ingestion/ingestion.module";
-import { AuthModule } from "./modules/auth/auth.module";
 
 @Module({
   imports: [
@@ -22,7 +21,6 @@ import { AuthModule } from "./modules/auth/auth.module";
       }),
     }),
     IngestionModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
