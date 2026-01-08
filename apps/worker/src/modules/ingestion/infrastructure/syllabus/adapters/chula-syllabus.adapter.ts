@@ -8,6 +8,7 @@ import {
   IUniversityAdapter,
   PaginatedResponse,
 } from "src/modules/ingestion/domain/ports/university-adapter.port";
+import { randomUUID } from "node:crypto";
 
 @Injectable()
 export class ChulaSyllabusAdapter implements IUniversityAdapter {
@@ -42,99 +43,61 @@ export class ChulaSyllabusAdapter implements IUniversityAdapter {
     rawData: unknown,
     filters?: { academicYear?: string; semester?: string }
   ): SyllabusDataDto[] {
-    if (!rawData || typeof rawData !== "object") {
-      return [];
-    }
-
     const data = rawData as {
-      status?: number;
-      data?: Record<
-        string,
-        {
-          status?: number;
-          data?: {
-            title?: string;
-            basic_information?: {
-              course_no?: string;
-              course_title_th?: string;
-              course_title_en?: string;
-              credits?: string;
-              school?: {
-                school_id?: number;
-                school_name_th?: string;
-                school_name_en?: string;
-              };
-              department?: {
-                department_id?: number;
-                department_name_th?: string;
-                department_name_en?: string;
-              };
-            };
-            course_information?: {
-              academic_year?: string;
-            };
-          };
-        }
-      >;
+      title?: string;
+      basic_information?: {
+        course_no?: string;
+        course_title_th?: string;
+        course_title_en?: string;
+        credits?: string;
+        school?: {
+          school_id?: number;
+          school_name_th?: string;
+          school_name_en?: string;
+        };
+        department?: {
+          department_id?: number;
+          department_name_th?: string;
+          department_name_en?: string;
+        };
+      };
+      course_information?: {
+        academic_year?: string;
+      };
     };
 
-    if (data.status !== 1 || !data.data) {
-      return [];
-    }
+    console.log(data, " data");
 
     const normalizedSyllabi: SyllabusDataDto[] = [];
 
-    for (const [courseId, courseData] of Object.entries(data.data)) {
-      if (courseData.status !== 1 || !courseData.data) {
-        continue;
-      }
+    const basicInfo = data.basic_information;
+    console.log(basicInfo, " basicInfo");
 
-      const basicInfo = courseData.data.basic_information;
-      const courseInfo = courseData.data.course_information;
-
-      // Extract academic year and semester from title or course_information
-      const academicYear =
-        courseInfo?.academic_year ||
-        courseData.data.title?.match(/\d{4}/)?.[0] ||
-        String(new Date().getFullYear() + 543); // Thai Buddhist year
-      const semester = courseData.data.title?.match(/\((\d+)\)/)?.[1] || "1";
-
-      // Filter by academic year and semester if provided
-      if (filters?.academicYear && academicYear !== filters.academicYear) {
-        continue;
-      }
-      if (filters?.semester && semester !== filters.semester) {
-        continue;
-      }
-
-      normalizedSyllabi.push({
-        courseId,
-        courseNo: basicInfo?.course_no || "",
-        courseTitleTh: basicInfo?.course_title_th || "",
-        courseTitleEn: basicInfo?.course_title_en || "",
-        credits: basicInfo?.credits || "",
-        school: {
-          schoolId: basicInfo?.school?.school_id || 0,
-          schoolNameTh: basicInfo?.school?.school_name_th || "",
-          schoolNameEn: basicInfo?.school?.school_name_en || "",
-        },
-        department: {
-          departmentId: basicInfo?.department?.department_id || 0,
-          departmentNameTh: basicInfo?.department?.department_name_th || "",
-          departmentNameEn: basicInfo?.department?.department_name_en || "",
-        },
-        academicYear,
-        semester,
-        rawData: courseData.data,
-      });
-    }
+    normalizedSyllabi.push({
+      courseId: randomUUID(),
+      courseNo: basicInfo?.course_no || "",
+      courseTitleTh: basicInfo?.course_title_th || "",
+      courseTitleEn: basicInfo?.course_title_en || "",
+      credits: basicInfo?.credits || "",
+      school: {
+        schoolId: basicInfo?.school?.school_id || 0,
+        schoolNameTh: basicInfo?.school?.school_name_th || "",
+        schoolNameEn: basicInfo?.school?.school_name_en || "",
+      },
+      department: {
+        departmentId: basicInfo?.department?.department_id || 0,
+        departmentNameTh: basicInfo?.department?.department_name_th || "",
+        departmentNameEn: basicInfo?.department?.department_name_en || "",
+      },
+      academicYear: data.course_information?.academic_year || "",
+      semester: "",
+      rawData: JSON.stringify(basicInfo),
+    });
 
     return normalizedSyllabi;
   }
 
-  fetchPage(
-    _params: FetchPageParams
-  ): Promise<PaginatedResponse<SyllabusDataDto>> {
+  fetchPage(_params: FetchPageParams): Promise<PaginatedResponse<any>> {
     const mockDataPath = path.join(
       process.cwd(),
       "syllabus_listbyyearsem.json"
@@ -145,6 +108,15 @@ export class ChulaSyllabusAdapter implements IUniversityAdapter {
     }
 
     const rawData = JSON.parse(fs.readFileSync(mockDataPath, "utf-8"));
-    return rawData;
+    return Promise.resolve({
+      items: Object.values(rawData.data).map((item: any) => item.data),
+      metadata: {
+        totalItems: Object.values(rawData.data).length,
+        totalPages: 2,
+        currentPage: 1,
+        pageSize: 100,
+        hasNextPage: true,
+      },
+    } as unknown as PaginatedResponse<any>);
   }
 }

@@ -8,6 +8,7 @@ import {
 } from "@ncbs/dtos";
 import { IIngestionRepository } from "../domain/ports/ingestion.repository.port";
 import { IngestionProviders } from "../domain/providers/ingestion.providers";
+import { logger } from "@ncbs/logger";
 
 @Injectable()
 export class IngestionService {
@@ -34,6 +35,9 @@ export class IngestionService {
     year?: string;
     semester?: string;
   }): Promise<{ jobId: string; message: string }> {
+    logger.info(`Syncing university ${params.universityCode}`);
+    logger.info(`Year: ${params.year || "N/A"}`);
+    logger.info(`Semester: ${params.semester || "N/A"}`);
     const job = await this.ingestionQueue.add("coordinate-sync", {
       universityCode: params.universityCode,
       year: params.year,

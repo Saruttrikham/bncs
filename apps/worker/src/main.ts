@@ -12,4 +12,7 @@ async function bootstrap() {
   logger.info("🚀 Worker is running and processing jobs...");
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  logger.error("Worker failed to start", error);
+  process.exit(1);
+});

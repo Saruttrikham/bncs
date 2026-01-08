@@ -72,7 +72,7 @@ export class FetchSyllabusUseCase {
       // Activity 2: Transform
       // ========================================
       const transformResult = await this.transformActivity.execute({
-        universityCode: extractResult.universityCode,
+        universityCode: dto.universityCode,
         items: extractResult.items,
         year: dto.year,
         semester: dto.semester,

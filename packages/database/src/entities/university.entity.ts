@@ -17,7 +17,7 @@ export class University {
   name!: string;
 
   @Column({ type: "varchar2", length: 50, unique: true })
-  code!: string; // e.g., "CHULA", "MAHIDOL"
+  code!: string; // e.g., "CHULA", "KMITL"
 
   @Column({
     type: "varchar2",

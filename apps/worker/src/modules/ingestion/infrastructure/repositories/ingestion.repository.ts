@@ -1,18 +1,20 @@
-import { Injectable } from "@nestjs/common";
-import {
-  getRepository,
-  IngestionLog,
-  University,
-  IngestionStatus,
-} from "@ncbs/database";
+import { Inject, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { IngestionLog, IngestionStatus } from "@ncbs/database";
 import { IIngestionRepository } from "../../domain/ports/ingestion.repository.port";
 import { IngestionLogDto } from "@ncbs/dtos";
 import { IngestionLogEntity } from "../../domain/entities/ingestion-log.entity";
 
 @Injectable()
 export class IngestionRepository implements IIngestionRepository {
+  constructor(
+    @InjectRepository(IngestionLog)
+    private readonly ingestionLogRepo: Repository<IngestionLog>
+  ) {}
+
   async findById(id: string): Promise<IngestionLogDto | null> {
-    const ingestionLogRepo = await getRepository(IngestionLog);
+    const ingestionLogRepo = this.ingestionLogRepo;
     const result = await ingestionLogRepo.findOne({
       where: { id },
     });
@@ -50,7 +52,7 @@ export class IngestionRepository implements IIngestionRepository {
     processedAt?: Date | null,
     errorMessage?: string | null
   ): Promise<void> {
-    const ingestionLogRepo = await getRepository(IngestionLog);
+    const ingestionLogRepo = this.ingestionLogRepo;
     await ingestionLogRepo.update(id, {
       status,
       processedAt,
@@ -58,25 +60,8 @@ export class IngestionRepository implements IIngestionRepository {
     });
   }
 
-  async getUniversity(universityId: string) {
-    const universityRepo = await getRepository(University);
-    const result = await universityRepo.findOne({
-      where: { id: universityId },
-    });
-
-    if (!result) {
-      return null;
-    }
-
-    return {
-      id: result.id,
-      code: result.code,
-      name: result.name,
-    };
-  }
-
   async create(dto: IngestionLogEntity): Promise<IngestionLogDto> {
-    const ingestionLogRepo = await getRepository(IngestionLog);
+    const ingestionLogRepo = this.ingestionLogRepo;
 
     // Convert rawData to string for CLOB storage
     const dataToSave = {

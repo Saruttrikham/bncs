@@ -4,6 +4,7 @@ import { DataSource } from "typeorm";
 import { University } from "./entities/university.entity";
 import { IngestionLog } from "./entities/ingestion-log.entity";
 import { Outbox } from "./entities/outbox.entity";
+import { Syllabus } from "./entities/syllabus.entity";
 
 const projectRoot = resolve(__dirname, "../../..");
 config({ path: resolve(projectRoot, ".env.local") });
@@ -32,10 +33,10 @@ const dbConfig = parseDatabaseUrl();
 
 export const AppDataSource = new DataSource({
   ...dbConfig,
-  synchronize: process.env.NODE_ENV === "development",
+  synchronize: false,
   logging:
     process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
-  entities: [University, IngestionLog, Outbox],
+  entities: [University, IngestionLog, Outbox, Syllabus],
   migrations: ["dist/migrations/*.js"],
   migrationsTableName: "migrations",
   subscribers: [],

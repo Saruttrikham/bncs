@@ -21,9 +21,7 @@ export enum JobType {
 }
 
 @Entity("outbox")
-@Index(["status", "createdAt"])
 @Index(["batchId", "status"])
-@Index(["status", "scheduledAt"])
 export class Outbox {
   @PrimaryGeneratedColumn("uuid")
   id!: string;

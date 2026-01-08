@@ -3,6 +3,7 @@ import { logger } from "@ncbs/logger";
 import { SyllabusDataDto } from "@ncbs/dtos";
 import { ISyllabusRepository } from "../../../domain/ports/syllabus.repository.port";
 import { IngestionProviders } from "../../../domain/providers/ingestion.providers";
+import { SyllabusEntity } from "src/modules/ingestion/domain/entities/syllabus.entity";
 
 @Injectable()
 export class LoadSyllabusActivity {
@@ -25,8 +26,25 @@ export class LoadSyllabusActivity {
     const errors: string[] = [];
 
     for (const syllabusData of input.syllabi) {
+      const syllabusEntity = new SyllabusEntity({
+        id: syllabusData.courseId,
+        universityId: input.universityCode,
+        courseNo: syllabusData.courseNo,
+        credits: syllabusData.credits,
+        courseTitleTh: syllabusData.courseTitleTh,
+        courseTitleEn: syllabusData.courseTitleEn,
+        schoolId: syllabusData.school.schoolId.toString(),
+        schoolNameTh: syllabusData.school.schoolNameTh,
+        schoolNameEn: syllabusData.school.schoolNameEn,
+        departmentId: syllabusData.department.departmentId.toString(),
+        departmentNameTh: syllabusData.department.departmentNameTh,
+        departmentNameEn: syllabusData.department.departmentNameEn,
+        academicYear: syllabusData.academicYear,
+        semester: syllabusData.semester,
+        rawData: JSON.stringify(syllabusData.rawData),
+      });
       try {
-        await this.syllabusRepository.save(input.universityCode, syllabusData);
+        await this.syllabusRepository.create(syllabusEntity);
         savedCount++;
       } catch (error) {
         errorCount++;

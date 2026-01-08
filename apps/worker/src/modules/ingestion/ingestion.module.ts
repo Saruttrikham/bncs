@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { BullModule } from "@nestjs/bullmq";
 import { ScheduleModule } from "@nestjs/schedule";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Outbox } from "@ncbs/database";
+import { Outbox, Syllabus, IngestionLog, University } from "@ncbs/database";
 import { QueueNames } from "./domain/constants/queue-names";
 import Redis from "ioredis";
 import {
@@ -34,7 +34,7 @@ import {
 @Module({
   imports: [
     ScheduleModule.forRoot(), // Enable cron jobs for OutboxProcessor
-    TypeOrmModule.forFeature([Outbox]), // Register Outbox entity
+    TypeOrmModule.forFeature([University, Outbox, Syllabus, IngestionLog]), // Register entities for dependency injection
     BullModule.registerQueue({
       name: QueueNames.INGESTION,
     }),

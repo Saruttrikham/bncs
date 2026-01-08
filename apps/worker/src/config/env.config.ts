@@ -23,9 +23,12 @@ export const envConfig = {
       .asUrlString(),
   },
 
-  // Database
+  // Database (Oracle)
   database: {
-    url: envVar.get("DATABASE_URL").required().asUrlString(),
+    connectString: envVar.get("DATABASE_CONNECT_STRING").required().asString(),
+    username: envVar.get("DATABASE_USERNAME").required().asString(),
+    password: envVar.get("DATABASE_PASSWORD").required().asString(),
+    port: envVar.get("DB_PORT").default(1521).asPortNumber(),
   },
 
   // Redis/BullMQ
@@ -51,7 +54,10 @@ export const env = {
   NODE_ENV: envConfig.server.nodeEnv,
   PORT: envConfig.server.port,
   CORS_ORIGIN: envConfig.cors.origin,
-  DATABASE_URL: envConfig.database.url,
+  DATABASE_CONNECT_STRING: envConfig.database.connectString,
+  DATABASE_USERNAME: envConfig.database.username,
+  DATABASE_PASSWORD: envConfig.database.password,
+  DB_PORT: envConfig.database.port,
   REDIS_HOST: envConfig.redis.host,
   REDIS_PORT: envConfig.redis.port,
   JWT_SECRET: envConfig.jwt.secret,

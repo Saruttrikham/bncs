@@ -15,11 +15,5 @@ export interface IIngestionRepository {
     errorMessage?: string | null
   ): Promise<void>;
 
-  getUniversity(universityId: string): Promise<{
-    id: string;
-    code: string;
-    name: string;
-  } | null>;
-
   create(dto: IngestionLogEntity): Promise<IngestionLogDto>;
 }

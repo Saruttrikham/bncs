@@ -3,7 +3,8 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BullModule } from "@nestjs/bullmq";
 import { IngestionModule } from "./modules/ingestion/ingestion.module";
-import { IngestionLog, Outbox } from "@ncbs/database";
+import { IngestionLog, Outbox, Syllabus, University } from "@ncbs/database";
+import { envConfig } from "./config/env.config";
 
 @Module({
   imports: [
@@ -13,22 +14,29 @@ import { IngestionLog, Outbox } from "@ncbs/database";
     }),
     TypeOrmModule.forRoot({
       type: "oracle",
-      connectString: process.env.DATABASE_CONNECT_STRING,
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 1521,
-      synchronize: process.env.NODE_ENV === "development",
+      connectString: envConfig.database.connectString,
+      username: envConfig.database.username,
+      password: envConfig.database.password,
+      port: envConfig.database.port,
+      synchronize: false,
       logging:
-        process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
-      entities: [IngestionLog, Outbox],
+        envConfig.server.nodeEnv === "development"
+          ? ["query", "error"]
+          : ["error"],
+      entities: [University, IngestionLog, Outbox, Syllabus],
+      extra: {
+        poolMax: 10,
+        poolMin: 0,
+        poolIncrement: 1,
+        poolTimeout: 10,
+        connectTimeout: 10,
+      },
     }),
-    BullModule.forRootAsync({
-      useFactory: () => ({
-        connection: {
-          host: process.env.REDIS_HOST || "localhost",
-          port: parseInt(process.env.REDIS_PORT || "6379", 10),
-        },
-      }),
+    BullModule.forRoot({
+      connection: {
+        host: envConfig.redis.host,
+        port: envConfig.redis.port,
+      },
     }),
     IngestionModule,
   ],

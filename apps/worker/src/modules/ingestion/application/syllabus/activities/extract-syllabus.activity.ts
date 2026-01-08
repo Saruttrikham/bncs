@@ -3,14 +3,6 @@ import { logger } from "@ncbs/logger";
 import { IUniversityAdapterSelector } from "../../../domain/ports/university-adapter-selector.port";
 import { IngestionProviders } from "../../../domain/providers/ingestion.providers";
 
-/**
- * Activity: Extract Syllabus Data
- *
- * Fetches raw syllabus data from university API with pagination.
- * Designed to be idempotent and independently retryable.
- *
- * In Temporal terms: This is an Activity (not a Workflow)
- */
 @Injectable()
 export class ExtractSyllabusActivity {
   constructor(
@@ -18,12 +10,6 @@ export class ExtractSyllabusActivity {
     private readonly adapterSelector: IUniversityAdapterSelector
   ) {}
 
-  /**
-   * Extract syllabus data from university API
-   *
-   * @param input - Extraction parameters
-   * @returns Raw syllabus items from API
-   */
   async execute(input: ExtractSyllabusInput): Promise<ExtractSyllabusOutput> {
     logger.info(
       `[Extract] Fetching page ${input.page} from ${input.universityCode}`,

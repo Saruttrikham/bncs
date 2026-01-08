@@ -13,12 +13,12 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "db:migrate": "tsc && typeorm migration:run -d dist/data-source.js",
-    "db:migrate:generate": "tsc && typeorm migration:generate src/migrations/$npm_config_name -d dist/data-source.js",
+    "db:migrate:generate": "sh -c 'tsc && typeorm migration:generate src/migrations/\"$1\" -d dist/data-source.js' --",
     "db:migrate:revert": "tsc && typeorm migration:revert -d dist/data-source.js",
-    "db:migrate:create": "typeorm migration:create src/migrations/$npm_config_name",
+    "db:migrate:create": "sh -c 'typeorm migration:create src/migrations/\"$1\"' --",
     "db:migrate:show": "tsc && typeorm migration:show -d dist/data-source.js",
     "db:seed": "tsx src/seed.ts",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
