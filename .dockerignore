@@ -1,38 +1,26 @@
 # Dependencies
 node_modules
 **/node_modules
+npm-debug.log*
+bun-debug.log*
 
 # Build outputs
 dist
-build
 .next
+build
 .turbo
-**/.turbo
+*.tsbuildinfo
 
-# Logs
+# Development files
+.git
+.gitignore
+.env*.local
 *.log
-logs
-**/*.log
-**/logs
-combined.log
-error.log
 
-# Environment files (should be passed via docker-compose)
-.env
-.env.*
-.env.local
-.env.*.local
-!.env.example
-**/.env
-**/.env.*
-**/.env.local
-
-# Testing
-coverage
-.nyc_output
-**/__tests__
-**/*.test.ts
-**/*.spec.ts
+# Documentation
+README.md
+*.md
+docs
 
 # IDE
 .vscode
@@ -40,39 +28,22 @@ coverage
 *.swp
 *.swo
 *~
+
+# OS files
 .DS_Store
+Thumbs.db
 
-# Git
-.git
-.gitignore
-.gitattributes
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+coverage
+test
+tests
+__tests__
 
-# CI/CD
-.github
-.gitlab-ci.yml
-
-# Documentation
-*.md
-!README.md
-docs
-
-# Misc
-.prettierrc
-.eslintrc
-.editorconfig
-biome.json
-tsconfig.tsbuildinfo
-**/tsconfig.tsbuildinfo
-
-# Development files
-*.local
-.cache
-tmp
-temp
-
-# Oracle data (if running locally)
-**/oradata
-
-# Bun
-.bun
-
+# Docker files
+Dockerfile*
+docker-compose*.yaml
+.dockerignore
