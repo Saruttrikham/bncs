@@ -1,45 +1,144 @@
-version: '3'
+version: "3.8"
+
 services:
+  # Oracle Database
   oracle:
     image: oracle/database:19.3.0-ee
+    container_name: ncbs-oracle
     environment:
       - ORACLE_PDB=orcl
       - ORACLE_PWD=admin
       - INIT_SGA_SIZE=3000
       - INIT_PGA_SIZE=1000
     volumes:
-      - /tmp/oracle/oradata:/opt/oracle/oradata
+      - oracle-data:/opt/oracle/oradata
     ports:
-      - 1521:1521
-      - 5500:5500
+      - "1521:1521"
+      - "5500:5500"
     networks:
       - app-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sqlplus",
+          "-L",
+          "sys/admin@//localhost:1521/orcl as sysdba",
+          "@/dev/null",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  # school-core-api:
-  #   build:
-  #     context: ../../
-  #     dockerfile: Dockerfile
-  #     target: school-core-api
-  #   env_file:
-  #     - .env
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: ncbs-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
-  #   ports:
-  #     - 3000:3000
-  #   volumes:
-  #     - .:/app
-  #   depends_on:
-  #     - oracle
-  #     - redis
-  #   networks:
-  #     - app-network
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: ncbs-api
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_HOST=oracle
+      - DB_PORT=1521
+      - DATABASE_CONNECT_STRING=oracle:1521/orcl
+      - DATABASE_USERNAME=system
+      - DATABASE_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      oracle:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # redis:
-  #   image: redis:latest
-  #   ports:
-  #     - 6379:6379
-  #   networks:
-  #     - app-network
+  # Worker Service
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: ncbs-worker
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_HOST=oracle
+      - DB_PORT=1521
+      - DATABASE_CONNECT_STRING=oracle:1521/orcl
+      - DATABASE_USERNAME=system
+      - DATABASE_PASSWORD=admin
+    depends_on:
+      oracle:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Web Application
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: ncbs-web
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - NEXT_PUBLIC_API_URL=http://api:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  oracle-data:
+    driver: local
+  redis-data:
+    driver: local

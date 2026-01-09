@@ -7,7 +7,7 @@ import {
   FetchPageParams,
   IUniversityAdapter,
   PaginatedResponse,
-} from "src/modules/ingestion/domain/ports/university-adapter.port";
+} from "../../../domain/ports/university-adapter.port";
 import { randomUUID } from "node:crypto";
 
 @Injectable()

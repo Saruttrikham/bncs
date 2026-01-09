@@ -2,22 +2,61 @@
 
 Complete guide to set up and run the NCBS monorepo.
 
+## Quick Start with Docker (Recommended)
+
+The easiest way to get started is using Docker. See [DOCKER.md](./DOCKER.md) for detailed instructions.
+
+```bash
+# 1. Copy environment template
+cp ENV_TEMPLATE.txt .env
+
+# 2. Edit .env with your configuration (if needed)
+nano .env
+
+# 3. Start all services
+make up
+# OR
+docker-compose up -d
+
+# 4. View logs
+make logs
+# OR
+docker-compose logs -f
+
+# Access the applications:
+# - API: http://localhost:3000
+# - Web: http://localhost:3001
+# - Oracle: localhost:1521
+# - Redis: localhost:6379
+```
+
+That's it! See [DOCKER.md](./DOCKER.md) for more commands and options.
+
+---
+
+## Alternative: Local Development Setup
+
+If you prefer to run the applications locally without Docker:
+
 ## Prerequisites
 
 Before starting, ensure you have:
 
 1. **Node.js** >= 18.0.0
+
    ```bash
    node --version  # Should be >= 18.0.0
    ```
 
 2. **pnpm** >= 8.0.0
+
    ```bash
    npm install -g pnpm
    pnpm --version  # Should be >= 8.0.0
    ```
 
 3. **PostgreSQL** (for database)
+
    ```bash
    # macOS
    brew install postgresql
@@ -28,6 +67,7 @@ Before starting, ensure you have:
    ```
 
 4. **Redis** (for BullMQ queue)
+
    ```bash
    # macOS
    brew install redis
@@ -53,12 +93,14 @@ This installs dependencies for all apps and packages in the monorepo.
 Create `.env.local` files for each app:
 
 #### Root `.env.local` (optional, for shared config)
+
 ```bash
 # Copy example (if you created one)
 cp .env.example .env.local
 ```
 
 #### `apps/api/.env.local`
+
 ```bash
 cd apps/api
 cat > .env.local << EOF
@@ -80,6 +122,7 @@ EOF
 ```
 
 #### `apps/worker/.env.local`
+
 ```bash
 cd apps/worker
 cat > .env.local << EOF
@@ -97,6 +140,7 @@ EOF
 ```
 
 #### `apps/web/.env.local`
+
 ```bash
 cd apps/web
 cat > .env.local << EOF
@@ -148,6 +192,7 @@ pnpm dev
 ```
 
 This runs all apps in parallel using Turborepo:
+
 - API server on `http://localhost:3001`
 - Worker (background processor)
 - Web app on `http://localhost:3000`
@@ -155,6 +200,7 @@ This runs all apps in parallel using Turborepo:
 ### Option 2: Run Apps Individually
 
 #### Run API Server
+
 ```bash
 cd apps/api
 pnpm dev
@@ -162,6 +208,7 @@ pnpm dev
 ```
 
 #### Run Worker
+
 ```bash
 cd apps/worker
 pnpm dev
@@ -169,6 +216,7 @@ pnpm dev
 ```
 
 #### Run Web App
+
 ```bash
 cd apps/web
 pnpm dev
@@ -189,15 +237,18 @@ turbo run dev --filter=@ncbs/api --filter=@ncbs/web
 ## Verify Everything Works
 
 ### 1. Check API Health
+
 ```bash
 curl http://localhost:3001/health
 # Should return: {"status":"ok","service":"api"}
 ```
 
 ### 2. Check Web App
+
 Open browser: `http://localhost:3000`
 
 ### 3. Test Authentication (after setup)
+
 ```bash
 # Login endpoint
 curl -X POST http://localhost:3001/auth/login \
@@ -210,6 +261,7 @@ curl -X POST http://localhost:3001/auth/login \
 ### Issue: "Cannot find module '@ncbs/database'"
 
 **Solution:** Build packages first
+
 ```bash
 pnpm build
 ```
@@ -217,6 +269,7 @@ pnpm build
 ### Issue: "Prisma Client not generated"
 
 **Solution:** Generate Prisma client
+
 ```bash
 cd packages/database
 pnpm dev
@@ -224,7 +277,8 @@ pnpm dev
 
 ### Issue: "Database connection failed"
 
-**Solution:** 
+**Solution:**
+
 1. Check PostgreSQL is running: `pg_isready`
 2. Verify `DATABASE_URL` in `.env.local` is correct
 3. Create database: `createdb ncbs` (if using PostgreSQL directly)
@@ -232,12 +286,14 @@ pnpm dev
 ### Issue: "Redis connection failed"
 
 **Solution:**
+
 1. Check Redis is running: `redis-cli ping` (should return "PONG")
 2. Verify `REDIS_HOST` and `REDIS_PORT` in `.env.local`
 
 ### Issue: Port already in use
 
 **Solution:** Change ports in `.env.local` files or kill the process:
+
 ```bash
 # Find process on port 3001
 lsof -ti:3001 | xargs kill -9
@@ -332,6 +388,7 @@ echo "✅ Setup complete! Run 'pnpm dev' to start all apps."
 ```
 
 Make it executable:
+
 ```bash
 chmod +x setup.sh
 ./setup.sh
@@ -344,4 +401,3 @@ chmod +x setup.sh
 3. Test API at `http://localhost:3001`
 4. Check worker logs for job processing
 5. Read `PACKAGE_SHARING_EXAMPLE.md` to understand package sharing
-

@@ -3,7 +3,7 @@ import { logger } from "@ncbs/logger";
 import { SyllabusDataDto } from "@ncbs/dtos";
 import { ISyllabusRepository } from "../../../domain/ports/syllabus.repository.port";
 import { IngestionProviders } from "../../../domain/providers/ingestion.providers";
-import { SyllabusEntity } from "src/modules/ingestion/domain/entities/syllabus.entity";
+import { SyllabusEntity } from "../../../domain/entities/syllabus.entity";
 
 @Injectable()
 export class LoadSyllabusActivity {
